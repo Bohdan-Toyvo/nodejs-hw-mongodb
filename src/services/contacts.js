@@ -12,3 +12,9 @@ export const createContact = async (payload) => {
   const contact = await Contact.create(payload);
   return contact;
 };
+export const updateContact = async (contactId, payload) => {
+  const contact = await Contact.findByIdAndUpdate(contactId, payload, {
+    new: true,
+  });
+  return contact;
+};
