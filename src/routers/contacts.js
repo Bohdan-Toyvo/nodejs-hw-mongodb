@@ -1,13 +1,13 @@
-import { Router } from 'express'; // Імпортуємо Router з Express
+import { Router } from 'express';
 import {
   getContactsController,
   getContactByIdController,
-} from '../controllers/contacts.js'; // Імпортуємо наші контролери
+} from '../controllers/contacts.js';
+import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 
-const contactsRouter = Router(); // Створюємо новий об'єкт Router
+const contactsRouter = Router();
 
-// Реєструємо роути і прив'язуємо їх до контролерів
-contactsRouter.get('/', getContactsController); // Роут для отримання всіх контактів
-contactsRouter.get('/:contactId', getContactByIdController); // Роут для отримання контакту за ID
+contactsRouter.get('/', ctrlWrapper(getContactsController));
+contactsRouter.get('/:contactId', ctrlWrapper(getContactByIdController));
 
 export default contactsRouter;

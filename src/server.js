@@ -4,6 +4,8 @@ import pino from 'pino';
 import dotenv from 'dotenv';
 import contactsRouter from './routers/contacts.js';
 import { PORT } from './utils/env.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+import { notFoundHandler } from './middlewares/notFoundHandler.js';
 
 dotenv.config();
 
@@ -26,14 +28,9 @@ export const setupServer = () => {
 
   app.use('/contacts', contactsRouter);
 
-  app.use((req, res) => {
-    res.status(404).json({
-      message: 'Not found',
-    });
-    logger.warn(`404 Not Found: ${req.method} ${req.url}`);
-  });
+  app.use(notFoundHandler);
 
-  const PORT = process.env.PORT || 3000;
+  app.use(errorHandler);
 
   app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`);
