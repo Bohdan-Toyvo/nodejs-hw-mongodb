@@ -1,4 +1,8 @@
-import { getAllContacts, getContactById } from '../services/contacts.js';
+import {
+  getAllContacts,
+  getContactById,
+  createContact,
+} from '../services/contacts.js';
 import pino from 'pino';
 import createHttpError from 'http-errors';
 
@@ -24,6 +28,18 @@ export const getContactByIdController = async (req, res) => {
   res.status(200).json({
     status: 200,
     message: `Successfully found contact with id ${contactId}!`,
+    data: contact,
+  });
+};
+
+export const createContactController = async (req, res) => {
+  const payload = req.body;
+
+  const contact = await createContact(payload);
+
+  res.status(201).json({
+    status: 201,
+    message: 'Successfully created a contact!',
     data: contact,
   });
 };
