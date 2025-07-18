@@ -14,7 +14,22 @@ export const getContactsController = async (req, res) => {
   const sortBy = req.query.sortBy || 'name';
   const sortOrder = req.query.sortOrder === 'desc' ? 'desc' : 'asc';
 
-  const contacts = await getAllContacts(page, perPage, sortBy, sortOrder);
+  const { type, isFavourite } = req.query;
+  const filter = {};
+  if (type) {
+    filter.contactType = type;
+  }
+  if (isFavourite) {
+    filter.isFavourite = isFavourite === 'true';
+  }
+
+  const contacts = await getAllContacts(
+    filter,
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+  );
 
   const totalItems = await Contact.countDocuments();
   const totalPages = Math.ceil(totalItems / perPage);
