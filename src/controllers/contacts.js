@@ -11,7 +11,10 @@ import { Contact } from '../models/contact.js';
 export const getContactsController = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const perPage = parseInt(req.query.perPage) || 10;
-  const contacts = await getAllContacts(page, perPage);
+  const sortBy = req.query.sortBy || 'name';
+  const sortOrder = req.query.sortOrder === 'desc' ? 'desc' : 'asc';
+
+  const contacts = await getAllContacts(page, perPage, sortBy, sortOrder);
 
   const totalItems = await Contact.countDocuments();
   const totalPages = Math.ceil(totalItems / perPage);
@@ -59,6 +62,7 @@ export const createContactController = async (req, res) => {
     data: contact,
   });
 };
+
 export const patchContactController = async (req, res) => {
   const { contactId } = req.params;
   const payload = req.body;
@@ -75,6 +79,7 @@ export const patchContactController = async (req, res) => {
     data: contact,
   });
 };
+
 export const deleteContactController = async (req, res) => {
   const { contactId } = req.params;
 
