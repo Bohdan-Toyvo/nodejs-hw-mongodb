@@ -1,5 +1,10 @@
 import createHttpError from 'http-errors';
-import { registerUser, loginUser, refreshSession } from '../services/auth.js';
+import {
+  registerUser,
+  loginUser,
+  refreshSession,
+  logoutUser,
+} from '../services/auth.js';
 
 export const registerUserController = async (req, res) => {
   const payload = req.body;
@@ -66,4 +71,16 @@ export const refreshSessionController = async (req, res) => {
       accessToken: session.accessToken,
     },
   });
+};
+
+export const logoutUserController = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(204).send();
+  }
+
+  await logoutUser({ refreshToken });
+
+  res.status(204).send();
 };
