@@ -21,9 +21,7 @@ export const registerUser = async (payload) => {
   return user.toObject();
 };
 
-export const loginUser = async (payload) => {
-  const { email, password } = payload;
-
+export const loginUser = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) {
     return null;
@@ -52,15 +50,11 @@ export const loginUser = async (payload) => {
     refreshTokenValidUntil,
   });
 
-  return {
-    user: user.toObject(),
-    accessToken: session.accessToken,
-    refreshToken: session.refreshToken,
-  };
+  return session;
 };
 
-export const refreshSession = async ({ refreshToken }) => {
-  const session = await Session.findOne({ refreshToken });
+export const refreshSession = async (sessionId, refreshToken) => {
+  const session = await Session.findOne({ _id: sessionId, refreshToken });
 
   if (!session || new Date() > session.refreshTokenValidUntil) {
     if (session) {
@@ -90,6 +84,6 @@ export const refreshSession = async ({ refreshToken }) => {
   return newSession;
 };
 
-export const logoutUser = async ({ refreshToken }) => {
-  await Session.deleteOne({ refreshToken });
+export const logoutUser = async (sessionId) => {
+  await Session.deleteOne({ _id: sessionId });
 };

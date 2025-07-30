@@ -15,7 +15,6 @@ export const registerUserController = async (req, res) => {
     throw createHttpError(409, 'Email in use');
   }
 
-  // Успішна відповідь
   res.status(201).json({
     status: 201,
     message: 'Successfully registered a user!',
@@ -24,44 +23,54 @@ export const registerUserController = async (req, res) => {
 };
 
 export const loginUserController = async (req, res) => {
-  const payload = req.body;
+  const { email, password } = req.body;
 
-  const session = await loginUser(payload);
+  const session = await loginUser(email, password);
 
   if (!session) {
     throw createHttpError(401, 'Unauthorized');
   }
 
-  const { refreshToken, accessToken } = session;
-
-  res.cookie('refreshToken', refreshToken, {
+  res.cookie('sessionId', session._id, {
     httpOnly: true,
+    expires: new Date(session.refreshTokenValidUntil),
+  });
+
+  res.cookie('refreshToken', session.refreshToken, {
+    httpOnly: true,
+    expires: new Date(session.refreshTokenValidUntil),
   });
 
   res.status(200).json({
     status: 200,
     message: 'Successfully logged in an user!',
     data: {
-      accessToken,
+      accessToken: session.accessToken,
     },
   });
 };
 
 export const refreshSessionController = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
+  const { sessionId, refreshToken } = req.cookies;
 
-  if (!refreshToken) {
+  if (!sessionId || !refreshToken) {
     throw createHttpError(401, 'Refresh token not provided');
   }
 
-  const session = await refreshSession({ refreshToken });
+  const session = await refreshSession(sessionId, refreshToken);
 
   if (!session) {
     throw createHttpError(401, 'Session not found or invalid');
   }
 
+  res.cookie('sessionId', session._id, {
+    httpOnly: true,
+    expires: new Date(session.refreshTokenValidUntil),
+  });
+
   res.cookie('refreshToken', session.refreshToken, {
     httpOnly: true,
+    expires: new Date(session.refreshTokenValidUntil),
   });
 
   res.status(200).json({
@@ -74,13 +83,14 @@ export const refreshSessionController = async (req, res) => {
 };
 
 export const logoutUserController = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
+  const { sessionId } = req.cookies;
 
-  if (!refreshToken) {
-    return res.status(204).send();
+  if (typeof sessionId !== 'undefined') {
+    await logoutUser(sessionId);
   }
 
-  await logoutUser({ refreshToken });
+  res.clearCookie('sessionId');
+  res.clearCookie('refreshToken');
 
   res.status(204).send();
 };
