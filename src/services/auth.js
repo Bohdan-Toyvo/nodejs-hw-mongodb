@@ -2,6 +2,10 @@ import bcrypt from 'bcryptjs';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
 import { randomBytes } from 'crypto';
+import jwt from 'jsonwebtoken';
+import { RESET_PASSWORD_JWT_SECRET, APP_DOMAIN } from '../utils/env.js';
+import { sendMail } from '../utils/sendMail.js';
+import createHttpError from 'http-errors';
 
 export const registerUser = async (payload) => {
   const { email, password } = payload;
@@ -86,4 +90,44 @@ export const refreshSession = async (sessionId, refreshToken) => {
 
 export const logoutUser = async (sessionId) => {
   await Session.deleteOne({ _id: sessionId });
+};
+
+export const sendResetEmail = async (email) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw createHttpError(404, 'User not found!');
+  }
+
+  const resetToken = jwt.sign(
+    {
+      sub: user._id,
+      name: user.name,
+      email: user.email,
+    },
+    RESET_PASSWORD_JWT_SECRET,
+    { expiresIn: '15m' },
+  );
+
+  const resetPasswordLink = `${APP_DOMAIN}/reset-password?token=${resetToken}`;
+
+  try {
+    await sendMail({
+      to: email,
+      subject: 'Reset your password for Contacts Application',
+      html: `
+        <h1>Reset your password</h1>
+        <p>Click on the link below to reset your password:</p>
+        <a href="${resetPasswordLink}">Reset Password</a>
+        <p>This link will expire in 15 minutes.</p>
+        <p>If you did not request a password reset, please ignore this email.</p>
+      `,
+    });
+  } catch (error) {
+    console.error('Error sending reset email:', error);
+    throw createHttpError(
+      500,
+      'Failed to send the email, please try again later.',
+    );
+  }
 };
