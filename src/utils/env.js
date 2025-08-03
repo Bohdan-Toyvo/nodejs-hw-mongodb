@@ -21,3 +21,7 @@ export const SMTP_PASSWORD = getEnvVar('SMTP_PASSWORD');
 export const SMTP_FROM = getEnvVar('SMTP_FROM');
 export const RESET_PASSWORD_JWT_SECRET = getEnvVar('RESET_PASSWORD_JWT_SECRET');
 export const APP_DOMAIN = getEnvVar('APP_DOMAIN');
+
+export const CLOUDINARY_CLOUD_NAME = getEnvVar('CLOUDINARY_CLOUD_NAME');
+export const CLOUDINARY_API_KEY = getEnvVar('CLOUDINARY_API_KEY');
+export const CLOUDINARY_API_SECRET = getEnvVar('CLOUDINARY_API_SECRET');

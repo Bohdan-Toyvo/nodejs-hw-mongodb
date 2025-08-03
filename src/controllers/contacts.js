@@ -7,6 +7,8 @@ import {
 } from '../services/contacts.js';
 import createHttpError from 'http-errors';
 import { Contact } from '../models/contact.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
+import fs from 'node:fs/promises';
 
 export const getContactsController = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -74,10 +76,28 @@ export const getContactByIdController = async (req, res) => {
 };
 
 export const createContactController = async (req, res) => {
-  const payload = req.body;
+  let contact;
+
   const userId = req.user.id;
 
-  const contact = await createContact(payload, userId);
+  if (req.file) {
+    const result = await uploadToCloudinary(req.file.path);
+
+    await fs.unlink(req.file.path);
+
+    const payload = {
+      ...req.body,
+      photo: result.secure_url,
+    };
+
+    contact = await createContact(payload, userId);
+  } else {
+    const payload = {
+      ...req.body,
+    };
+
+    contact = await createContact(payload, userId);
+  }
 
   res.status(201).json({
     status: 201,
@@ -88,18 +108,39 @@ export const createContactController = async (req, res) => {
 
 export const patchContactController = async (req, res) => {
   const { contactId } = req.params;
-  const payload = req.body;
-  const userId = req.user.id;
+  let contact;
 
-  const contact = await updateContact(contactId, payload, userId);
+  const userId = req.user.id;
+  if (req.file) {
+    const result = await uploadToCloudinary(req.file.path);
+
+    await fs.unlink(req.file.path);
+
+    const payload = {
+      ...req.body,
+      photo: result.secure_url,
+    };
+
+    contact = await updateContact(contactId, payload, userId);
+  } else {
+    const payload = {
+      ...req.body,
+    };
+
+    contact = await updateContact(contactId, payload, userId);
+  }
 
   if (!contact) {
-    throw createHttpError(404, 'Contact not found');
+    return res.status(404).json({
+      status: 404,
+      message: `Contact with ID ${contactId} not found`,
+      data: null,
+    });
   }
 
   res.status(200).json({
     status: 200,
-    message: 'Successfully patched a contact!',
+    message: `Successfully patched contact with id ${contactId}!`,
     data: contact,
   });
 };
