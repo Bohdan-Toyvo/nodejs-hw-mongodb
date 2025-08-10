@@ -25,3 +25,7 @@ export const APP_DOMAIN = getEnvVar('APP_DOMAIN');
 export const CLOUDINARY_CLOUD_NAME = getEnvVar('CLOUDINARY_CLOUD_NAME');
 export const CLOUDINARY_API_KEY = getEnvVar('CLOUDINARY_API_KEY');
 export const CLOUDINARY_API_SECRET = getEnvVar('CLOUDINARY_API_SECRET');
+
+// export const GOOGLE_CLIENT_ID = getEnvVar('GOOGLE_CLIENT_ID');
+// export const GOOGLE_CLIENT_SECRET = getEnvVar('GOOGLE_CLIENT_SECRET');
+// export const GOOGLE_CALLBACK_URL = getEnvVar('GOOGLE_CALLBACK_URL');
