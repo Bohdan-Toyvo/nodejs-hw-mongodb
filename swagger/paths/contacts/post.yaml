@@ -6,11 +6,36 @@ description: Create contact
 security:
   - bearerAuth: []
 requestBody:
-  required: true
   content:
     multipart/form-data:
       schema:
-        $ref: ../../components/schemas/contact.yaml
+        type: object
+        properties:
+          name:
+            description: Contact's name
+            type: string
+            example: John Doe
+          phoneNumber:
+            description: Contact's phone number
+            type: string
+            example: +380501234567
+          email:
+            description: Contact's email
+            type: string
+            example: example@example.com
+          isFavourite:
+            description: Is contact favourite
+            type: boolean
+            example: false
+          contactType:
+            description: Type of contact
+            type: string
+            enum: ['home', 'personal']
+          photo:
+            description: Link to contact's photo
+            type: string
+            format: binary
+            example: https://res.cloudinary.com/dsqi5ajwm/image/upload/v1754318010/bzzv2ziq5eu4k23s1roz.jpg
 responses:
   '201':
     description: Successfully created a contact!

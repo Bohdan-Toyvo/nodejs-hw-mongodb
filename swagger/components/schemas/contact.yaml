@@ -25,8 +25,10 @@ properties:
     description: Email address of the contact
   photo:
     type: string
+    format: binary
     description: User's photo in base64 format
     default: null
+    example: https://res.cloudinary.com/dsqi5ajwm/image/upload/v1754318010/bzzv2ziq5eu4k23s1roz.jpg
   isFavourite:
     description: Is contact favourite
     type: boolean
